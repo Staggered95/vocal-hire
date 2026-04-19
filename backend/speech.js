@@ -1,7 +1,7 @@
 import { DeepgramClient } from "@deepgram/sdk";
 
 // Initialize Deepgram with your new key
-const apiKey = "d158b9173d18a409e4f745e6feeffc7e13225fa9";
+const apiKey = "";
 // The new SDK takes an object for configuration
 const client = new DeepgramClient({ apiKey }); 
 

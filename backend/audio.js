@@ -2,7 +2,7 @@ import fs from "fs";
 import { DeepgramClient } from "@deepgram/sdk";
 
 // Initialize with your new, safe API key
-const apiKey = "d158b9173d18a409e4f745e6feeffc7e13225fa9";
+const apiKey = "";
 const client = new DeepgramClient({ apiKey });
 
 // Helper to convert Web Stream to Node Buffer
