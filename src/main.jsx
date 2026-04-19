@@ -6,6 +6,6 @@ import Interview from './pages/Interview.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <Interview/>
+    <App/>
   </StrictMode>,
 )

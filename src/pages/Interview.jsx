@@ -3,6 +3,7 @@ import LiquidVisualizer from '../components/LiquidVisualizer';
 import LiveCaption from '../components/LiveCaptions';
 
 export default function Interview({ name, onComplete }) {
+  console.log("Props received in Interview:", { name, typeOfOnComplete: typeof onComplete });
   const [status, setStatus] = useState('idle'); 
   const [transcriptHistory, setTranscriptHistory] = useState([
     { speaker: 'AI', text: `Hi ${name}, I'm your Cuemath interviewer. Are you ready to begin?` }
@@ -49,6 +50,7 @@ export default function Interview({ name, onComplete }) {
 
     const formData = new FormData();
     formData.append('audio', audioBlob, 'user_audio.webm');
+    formData.append('history', JSON.stringify(transcriptHistory));
 
     try {
       // Backend integration placeholder
@@ -87,15 +89,50 @@ export default function Interview({ name, onComplete }) {
     <div className="min-h-screen flex flex-col items-center justify-between p-8">
       
       {/* Top Header */}
-      <header className="w-full max-w-3xl flex justify-between items-center text-sm">
-        <div className="text-text-muted font-mono tracking-widest uppercase">
-          Status <span className="text-accent-primary ml-2">{status}</span>
+      {/* Header */}
+      <header className="flex justify-between items-center mb-8 border-b border-border pb-4 w-full max-w-3xl mx-auto">
+        <div>
+          <h1 className="text-xl font-bold text-text-primary">Live Interview</h1>
+          <p className="text-sm text-text-muted">Candidate: {name}</p>
         </div>
         <button 
-          onClick={() => onComplete({ score: "Pending" })}
-          className="text-text-muted hover:text-error transition-colors"
+          onClick={async () => {
+            // Prevent spam-clicking!
+            if (status === 'processing') return; 
+            
+            try {
+              setStatus('processing');
+              const response = await fetch('http://localhost:5000/api/chat/evaluate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ history: transcriptHistory })
+              });
+              
+              // If the backend threw a 500 error, catch it before parsing JSON
+              if (!response.ok) {
+                throw new Error(`Server returned ${response.status}`);
+              }
+
+              const data = await response.json();
+              
+              // Double check that onComplete exists (in case App.jsx wasn't saved)
+              if (typeof onComplete === 'function') {
+                onComplete(data);
+              } else {
+                console.error("App.jsx is not passing onComplete properly!");
+                setStatus('idle');
+              }
+              
+            } catch (err) {
+              console.error("Failed to evaluate:", err);
+              alert("The AI evaluator is currently overloaded. Please try clicking End Interview again.");
+              setStatus('idle'); // Reset the UI so they can try again
+            }
+          }}
+          className="px-4 py-2 text-sm font-medium text-error bg-error/10 rounded-lg hover:bg-error/20 transition-colors disabled:opacity-50"
+          disabled={status === 'processing'}
         >
-          End Interview
+          {status === 'processing' ? 'Evaluating...' : 'End Interview'}
         </button>
       </header>
 
