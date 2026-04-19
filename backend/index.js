@@ -18,5 +18,5 @@ app.use('/api/chat', chatRoutes);
 
 app.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
-  console.log(`Loaded API Keys: Deepgram (${!!process.env.DEEPGRAM_API_KEY}), Gemini (${!!process.env.GEMINI_API_KEY})`);
+  console.log(`Loaded API Keys: Deepgram (${!!process.env.DEEPGRAM_API_KEY}), Groq (${!!process.env.GEMINI_API_KEY})`);
 });

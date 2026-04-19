@@ -1,45 +1,23 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Welcome from './pages/Welcome';
 import Interview from './pages/Interview';
 import Results from './pages/Results';
-import AnimatedBackgroundOrbs from './components/welcome/AnimatedBackgroundOrbs';
+import AnimatedBackgroundOrbs from './components/AnimatedBackgroundOrbs';
 
 export default function App() {
-  const [currentView, setCurrentView] = useState('welcome');
-  const [candidateName, setCandidateName] = useState('');
-  const [evaluationData, setEvaluationData] = useState(null);
-
-  const handleStartInterview = (name) => {
-    setCandidateName(name);
-    setCurrentView('interview');
-  };
-
-  const handleInterviewComplete = (results) => {
-    setEvaluationData(results);
-    setCurrentView('results');
-  };
-
   return (
     <div className="min-h-screen bg-background-primary text-text-primary selection:bg-accent-primary/30">
       <AnimatedBackgroundOrbs />
-      
-      {currentView === 'welcome' && (
-        <Welcome onStart={handleStartInterview} />
-      )}
-      
-      {currentView === 'interview' && (
-        <Interview 
-          name={candidateName} 
-          onComplete={handleInterviewComplete} 
-        />
-      )}
-      
-      {currentView === 'results' && (
-        <Results 
-          data={evaluationData} 
-          name={candidateName} 
-        />
-      )}
+      <Router>
+        <Routes>
+          <Route path="/" element={<Welcome />} />
+          <Route path="/interview" element={<Interview />} />
+          <Route path="/results" element={<Results />} />
+          {/* Catch-all route to send lost users back to the start */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </Router>
     </div>
   );
 }

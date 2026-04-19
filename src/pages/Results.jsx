@@ -1,22 +1,21 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { useLocation, useNavigate, Navigate } from 'react-router-dom';
 
-export default function Results({ data, name }) {
-  // Fallback in case the API failed or returned malformed data
+export default function Results() {
+  const location = useLocation();
+  const navigate = useNavigate();
+  
+  // Read from router state
+  const { data, name } = location.state || {};
+
+  // Kick user back to start if they try to access /results directly
   if (!data || !data.scores) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center p-8 text-center">
-        <h2 className="text-xl text-error mb-4">Evaluation Processing Failed</h2>
-        <pre className="text-xs text-text-muted text-left bg-background-secondary p-4 rounded-lg w-full max-w-lg overflow-auto">
-          {JSON.stringify(data, null, 2)}
-        </pre>
-      </div>
-    );
+    return <Navigate to="/" replace />;
   }
 
   const { scores, overall_recommendation, summary } = data;
 
-  // Helper to color-code the recommendation
   const getRecColor = (rec) => {
     if (rec?.includes('Hire')) return 'text-stat-success bg-stat-success/10 border-stat-success/20';
     if (rec?.includes('Reject')) return 'text-error bg-error/10 border-error/20';
@@ -24,8 +23,17 @@ export default function Results({ data, name }) {
   };
 
   return (
-    <div className="min-h-screen p-6 md:p-12 max-w-5xl mx-auto">
+    <div className="min-h-screen p-6 md:p-12 max-w-5xl mx-auto flex flex-col">
       
+      <div className="flex justify-end mb-4">
+        <button 
+          onClick={() => navigate('/')}
+          className="text-sm text-text-muted hover:text-text-primary transition-colors font-medium"
+        >
+          ← Start New Interview
+        </button>
+      </div>
+
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -35,12 +43,11 @@ export default function Results({ data, name }) {
         <p className="text-text-muted">Candidate: <span className="text-text-primary font-medium">{name}</span></p>
       </motion.div>
 
-      {/* Top Banner: Recommendation & Summary */}
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
-        className="bg-background-secondary border border-border rounded-2xl p-6 mb-8 flex flex-col md:flex-row gap-6 items-start md:items-center justify-between"
+        className="bg-background-secondary border border-border rounded-2xl p-6 mb-8 flex flex-col md:flex-row gap-6 items-start md:items-center justify-between shadow-lg"
       >
         <div className="flex-1">
           <h3 className="text-sm font-mono tracking-widest text-text-muted uppercase mb-2">AI Summary</h3>
@@ -51,7 +58,6 @@ export default function Results({ data, name }) {
         </div>
       </motion.div>
 
-      {/* Grid: Skill Scores & Evidence */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {Object.entries(scores).map(([skill, details], idx) => (
           <motion.div 
@@ -59,7 +65,7 @@ export default function Results({ data, name }) {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.2 + (idx * 0.1) }}
-            className="bg-background-secondary border border-border rounded-2xl p-6 flex flex-col h-full"
+            className="bg-background-secondary border border-border rounded-2xl p-6 flex flex-col h-full shadow-lg"
           >
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-semibold capitalize text-accent-hover">{skill}</h3>

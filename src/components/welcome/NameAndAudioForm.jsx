@@ -1,37 +1,13 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 
-// Real embedded base64 synthesized voice sample for testing
-const testAudioBase64 = "data:audio/wav;base64,UklGRmYBAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YUQBAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgMDkwMDA=";
-
 export default function NameAndAudioForm({ onStart }) {
   const [name, setName] = useState('');
   const [status, setStatus] = useState({ error: false, message: '' });
   const [isCheckingMic, setIsCheckingMic] = useState(false);
-  const [isPlayingTestAudio, setIsPlayingTestAudio] = useState(false);
-
-  const handlePlayTestAudio = () => {
-    if (isPlayingTestAudio) return;
-    setIsPlayingTestAudio(true);
-    setStatus({ error: false, message: 'Playing test audio sample...' });
-    const audio = new Audio(testAudioBase64);
-    audio.play()
-      .then(() => {
-        audio.onended = () => {
-          setIsPlayingTestAudio(false);
-          setStatus({ error: false, message: '' });
-        };
-      })
-      .catch(err => {
-        console.error("Audio test error:", err);
-        setStatus({ error: true, message: 'Failed to play audio sample.' });
-        setIsPlayingTestAudio(false);
-      });
-  };
 
   const handleStart = async (e) => {
     e.preventDefault();
-    if (isPlayingTestAudio) return; // Mutually exclusive
     if (!name.trim()) return setStatus({ error: true, message: 'Please enter your name.' });
 
     setIsCheckingMic(true);
@@ -68,8 +44,6 @@ export default function NameAndAudioForm({ onStart }) {
     }
   };
 
-  const formActionDisabled = isCheckingMic || isPlayingTestAudio;
-
   return (
     <form onSubmit={handleStart} className="space-y-6">
       <motion.div
@@ -82,7 +56,7 @@ export default function NameAndAudioForm({ onStart }) {
           type="text"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          disabled={formActionDisabled}
+          disabled={isCheckingMic}
           className="w-full px-4 py-3 bg-slate-950/50 border border-slate-700 rounded-xl focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-400 text-slate-100 placeholder-slate-500 transition-all outline-none"
           placeholder="e.g. Aditi Sharma"
         />
@@ -103,40 +77,13 @@ export default function NameAndAudioForm({ onStart }) {
         </motion.div>
       )}
 
-      {/* Action Buttons Section */}
-      <div className="space-y-4 pt-2">
-        {/* Test Audio Button */}
+      {/* Action Button Section */}
+      <div className="pt-2">
         <motion.button
-          whileHover={!formActionDisabled ? { scale: 1.01 } : {}}
-          whileTap={!formActionDisabled ? { scale: 0.99 } : {}}
-          type="button"
-          onClick={handlePlayTestAudio}
-          disabled={formActionDisabled}
-          className="w-full py-3 font-semibold text-slate-300 bg-slate-800/80 rounded-xl hover:bg-slate-700 transition-all disabled:opacity-40 flex justify-center items-center gap-2.5 border border-slate-700/50 relative group"
-        >
-          {isPlayingTestAudio ? (
-            <span className="flex items-center gap-2">
-              <svg className="animate-spin h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-              Playing Sample...
-            </span>
-          ) : (
-            <>
-              <span className="relative z-10 text-lg">🎧</span>
-              <span className="relative z-10">Test Audio Sample</span>
-            </>
-          )}
-          <div className="absolute inset-0 bg-slate-700/50 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-0" />
-        </motion.button>
-
-        {/* Start Interview Button */}
-        <motion.button
-          whileHover={!formActionDisabled ? { scale: 1.01 } : {}}
-          whileTap={!formActionDisabled ? { scale: 0.98 } : {}}
+          whileHover={!isCheckingMic ? { scale: 1.01 } : {}}
+          whileTap={!isCheckingMic ? { scale: 0.98 } : {}}
           type="submit"
-          disabled={formActionDisabled}
+          disabled={isCheckingMic}
           className="w-full py-3.5 font-semibold text-slate-950 bg-gradient-to-r from-cyan-400 to-cyan-300 rounded-xl hover:from-cyan-300 hover:to-cyan-200 transition-all disabled:opacity-50 flex justify-center items-center gap-2.5 shadow-[0_0_20px_rgba(34,211,238,0.2)]"
         >
           {isCheckingMic ? (
@@ -149,7 +96,9 @@ export default function NameAndAudioForm({ onStart }) {
             </span>
           ) : (
             <>
-              <span className="text-lg">▶️</span>
+              <svg fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 010 1.972l-11.54 6.347a1.125 1.125 0 01-1.667-.986V5.653z" />
+              </svg>
               <span>Start Interview</span>
             </>
           )}

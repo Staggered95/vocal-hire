@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 
 export default function AnimatedBackgroundOrbs() {
   return (
-    <div className="absolute inset-0 w-full h-full pointer-events-none overflow-hidden z-0">
+    <div className="fixed inset-0 w-full h-full pointer-events-none overflow-hidden z-0">
       
       {/* Orb 1: Frosty Cyan */}
       <motion.div

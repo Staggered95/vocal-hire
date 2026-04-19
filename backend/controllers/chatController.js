@@ -32,31 +32,52 @@ export const processChat = async (req, res) => {
     
     // Extract text safely
     const userText = sttResponse.data?.results?.channels[0]?.alternatives[0]?.transcript || "";
-    if (!userText.trim()) throw new Error("Could not hear anything in the audio.");
+    if (!userText.trim()) {
+      console.log("User was silent.");
+      return res.json({
+        userText: "[Silence]",
+        aiText: "I didn't quite catch that. Could you please repeat what you just said?",
+        aiAudioBase64: null, // We won't waste API calls generating TTS for this
+        isSilence: true 
+      });
+    }
     console.log(`User: "${userText}"`);
 
     // ==========================================
-    // STEP 2: Gemini LLM (Brain)
+    // STEP 2: Groq LLM (Brain) - Ultra Fast
     // ==========================================
-    console.log("2. Generating AI response with context...");
-    const prompt = `
-      You are a warm, professional Cuemath recruiter conducting a short voice interview.
-      Keep your response to a maximum of two short, conversational sentences.
-      
-      Here is the transcript of the interview so far:
-      ${formattedHistory}
-
-      Candidate just said: "${userText}"
-      
-      Respond directly to the candidate as the AI interviewer.
-    `;
-
-    const llmResponse = await ai.models.generateContent({
-      model: "gemini-3-flash-preview",
-      contents: prompt,
-    });
+    console.log("2. Generating AI response with Groq...");
     
-    const aiText = llmResponse.text;
+    // Map your React transcript history into Groq's required format
+    const messages = [
+      { 
+        role: "system", 
+        content: "You are a warm, professional Cuemath recruiter conducting a short voice interview. Keep your response to a maximum of two short, conversational sentences." 
+      },
+      ...chatHistory.map(msg => ({
+        role: msg.speaker === 'AI' ? 'assistant' : 'user',
+        content: msg.text
+      })),
+      { role: "user", content: userText }
+    ];
+
+    const llmResponse = await axios.post(
+      'https://api.groq.com/openai/v1/chat/completions',
+      {
+        model: "llama-3.1-8b-instant", // The fastest model available
+        messages: messages,
+        temperature: 0.7,
+        max_tokens: 150
+      },
+      {
+        headers: {
+          'Authorization': `Bearer ${process.env.GROQ_API_KEY}`,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+    
+    const aiText = llmResponse.data.choices[0].message.content;
     console.log(`AI: "${aiText}"`);
 
     // ==========================================
@@ -64,7 +85,7 @@ export const processChat = async (req, res) => {
     // ==========================================
     console.log("3. Synthesizing AI voice...");
     const ttsResponse = await axios.post(
-      'https://api.deepgram.com/v1/speak?model=aura-2-thalia-en',
+      'https://api.deepgram.com/v1/speak?model=aura-2-helena-en',
       { text: aiText },
       {
         headers: {
@@ -139,33 +160,18 @@ async function generateWithRetry(prompt, isJson = false, maxRetries = 4) {
 export const evaluateInterview = async (req, res) => {
   try {
     const { history } = req.body;
+    if (!history || history.length === 0) return res.status(400).json({ error: 'No history' });
 
-    if (!history || !Array.isArray(history) || history.length === 0) {
-      return res.status(400).json({ error: 'No interview history provided.' });
-    }
+    console.log("📊 Starting final evaluation with Groq...");
 
-    console.log("📊 Starting final evaluation...");
-
-    const formattedTranscript = history
-      .map(msg => `${msg.speaker}: ${msg.text}`)
-      .join('\n');
+    const formattedTranscript = history.map(msg => `${msg.speaker}: ${msg.text}`).join('\n');
 
     const prompt = `
-      You are an expert recruiter and communication evaluator for Cuemath.
-      Analyze the following transcript of a voice interview with a tutor candidate.
-      
-      Transcript:
+      You are an expert recruiter for Cuemath. Analyze this transcript:
       ${formattedTranscript}
 
-      Evaluate the candidate (the "User") based on these 5 soft skills: 
-      Clarity, Warmth, Simplicity, Patience, and Fluency.
-      
-      For each skill:
-      1. Give a score from 1 to 5.
-      2. Write one short sentence of feedback.
-      3. Provide a direct quote from the User in the transcript that justifies your score. If they didn't speak enough to judge, quote their shortest response and score accordingly.
-
-      You must return ONLY a valid JSON object using this exact schema:
+      Evaluate Clarity, Warmth, Simplicity, Patience, and Fluency out of 5.
+      You MUST output ONLY a valid JSON object using this exact schema:
       {
         "scores": {
           "Clarity": { "score": 0, "feedback": "", "quote": "" },
@@ -175,20 +181,32 @@ export const evaluateInterview = async (req, res) => {
           "Fluency": { "score": 0, "feedback": "", "quote": "" }
         },
         "overall_recommendation": "Hire | Shortlist | Reject",
-        "summary": "One sentence summary of their performance."
+        "summary": "One sentence summary."
       }
     `;
 
-    // Use our new robust retry function instead of calling Gemini directly
-    const llmResponse = await generateWithRetry(prompt, true);
+    const response = await axios.post(
+      'https://api.groq.com/openai/v1/chat/completions',
+      {
+        model: "llama-3.1-8b-instant",
+        messages: [{ role: "user", content: prompt }],
+        response_format: { type: "json_object" }, // Forces valid JSON!
+        temperature: 0.1 // Keep it strict for grading
+      },
+      {
+        headers: {
+          'Authorization': `Bearer ${process.env.GROQ_API_KEY}`,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
 
-    const evaluationData = JSON.parse(llmResponse.text);
-    
+    const evaluationData = JSON.parse(response.data.choices[0].message.content);
     console.log("✅ Evaluation complete.");
     res.json(evaluationData);
 
   } catch (error) {
-    console.error("Evaluation Error:", error.message || error);
-    res.status(500).json({ error: 'Failed to generate evaluation rubric after multiple retries.' });
+    console.error("Evaluation Error:", error.response?.data || error.message);
+    res.status(500).json({ error: 'Failed to generate rubric.' });
   }
 };
