@@ -17,14 +17,10 @@ export default function WelcomeScreen({ onStart }) {
     setStatus({ error: false, message: 'Requesting microphone access...' });
 
     try {
-      // The crucial "Pro" step: Request mic permission before moving to the interview
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       
-      // If we get here, they clicked "Allow". 
-      // We immediately stop the stream since the InterviewScreen will handle the actual recording.
       stream.getTracks().forEach(track => track.stop());
       
-      // Pass the name up to App.jsx to switch views
       onStart(name.trim());
       
     } catch (err) {

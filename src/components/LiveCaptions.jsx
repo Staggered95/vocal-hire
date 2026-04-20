@@ -6,12 +6,9 @@ export default function LiveCaption({ currentMessage }) {
 
   const words = currentMessage.text.split(" ");
   
-  // Is this the AI speaking? If so, trigger the Karaoke effect.
   const isAI = currentMessage.speaker === 'AI';
 
   // --- KARAOKE ANIMATION CONFIG ---
-  // Deepgram Aura speaks at roughly 160 WPM (~375ms per word).
-  // We use this to fake the exact timestamp syncing.
   const timePerWord = 0.25; 
 
   const containerVariants = {
@@ -21,7 +18,6 @@ export default function LiveCaption({ currentMessage }) {
       y: 0,
       transition: { 
         duration: 0.4,
-        // Start highlighting the words immediately as the audio starts
         staggerChildren: timePerWord, 
         delayChildren: 0.2
       },
@@ -35,15 +31,13 @@ export default function LiveCaption({ currentMessage }) {
   };
 
   const wordVariants = {
-    // Start dim and muted
     hidden: { 
-      color: "var(--text-muted, #71717A)", // Fallback to zinc-500
+      color: "var(--text-muted, #71717A)",
       opacity: 0.4,
       filter: "blur(2px)"
     },
-    // Light up bright white when it's "spoken"
     visible: { 
-      color: "var(--text-primary, #F4F4F5)", // Fallback to zinc-100
+      color: "var(--text-primary, #F4F4F5)", 
       opacity: 1, 
       filter: "blur(0px)",
       transition: { duration: 0.2 } 
@@ -73,7 +67,6 @@ export default function LiveCaption({ currentMessage }) {
             className="text-xl md:text-2xl font-medium leading-relaxed flex flex-wrap justify-center text-center drop-shadow-[0_2px_12px_rgba(0,0,0,0.9)]"
           >
             {words.map((word, index) => {
-              // If it's the User speaking, we just show it normally without the slow karaoke sweep
               if (!isAI) {
                 return (
                   <span key={index} className="mr-[0.25em] mb-1 inline-block text-text-primary">
@@ -82,7 +75,6 @@ export default function LiveCaption({ currentMessage }) {
                 );
               }
 
-              // If it's the AI, apply the Karaoke sweep
               return (
                 <motion.span
                   key={index}

@@ -8,8 +8,6 @@ import NameAndAudioForm from '../components/welcome/NameAndAudioForm';
 export default function Welcome() {
   const navigate = useNavigate();
 
-  // NameAndAudioForm does all the heavy lifting (mic check, errors, state).
-  // When it's finished, it just passes the verified name up to this function.
   const handleTeleport = (candidateName) => {
     navigate('/interview', { state: { name: candidateName } });
   };

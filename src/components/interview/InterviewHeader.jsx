@@ -3,17 +3,14 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function InterviewHeader({ name, status, setStatus, transcriptHistory, navigate }) {
-  // Add local state to manage our custom error messages
   const [error, setError] = useState(null);
 
-  // Helper function to show an error and auto-dismiss it after 4 seconds
   const showError = (message) => {
     setError(message);
     setTimeout(() => setError(null), 4000);
   };
 
   const handleEndInterview = async () => {
-    // Guard removed: Free access to the result screen for quick demos!
     
     if (status === 'processing') return; 
 

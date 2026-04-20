@@ -6,10 +6,8 @@ export default function Results() {
   const location = useLocation();
   const navigate = useNavigate();
   
-  // Read from router state
   const { data, name } = location.state || {};
 
-  // Kick user back to start if they try to access /results directly
   if (!data || !data.scores) {
     return <Navigate to="/" replace />;
   }

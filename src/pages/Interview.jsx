@@ -12,7 +12,6 @@ export default function Interview() {
   const location = useLocation();
   const name = location.state?.name || "Candidate";
 
-  // All logic is cleanly imported from our custom hook
   const { 
     status, setStatus, transcriptHistory, 
     startRecording, stopRecording, cancelRecording 
