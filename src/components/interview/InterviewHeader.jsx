@@ -13,12 +13,8 @@ export default function InterviewHeader({ name, status, setStatus, transcriptHis
   };
 
   const handleEndInterview = async () => {
-    // --- THE ANTI-SKIP GUARD ---
-    if (transcriptHistory.length < 5) {
-      showError("Interview too short! Please answer a few more questions before getting your result.");
-      return;
-    }
-
+    // Guard removed: Free access to the result screen for quick demos!
+    
     if (status === 'processing') return; 
 
     try {
