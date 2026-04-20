@@ -12,7 +12,7 @@ export default function LiveCaption({ currentMessage }) {
   // --- KARAOKE ANIMATION CONFIG ---
   // Deepgram Aura speaks at roughly 160 WPM (~375ms per word).
   // We use this to fake the exact timestamp syncing.
-  const timePerWord = 0.37; 
+  const timePerWord = 0.25; 
 
   const containerVariants = {
     hidden: { opacity: 0, y: 10 },

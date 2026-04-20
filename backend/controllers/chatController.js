@@ -1,8 +1,5 @@
 import axios from 'axios';
-import { GoogleGenAI } from '@google/genai';
 
-// Initialize Gemini SDK
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
 export const processChat = async (req, res) => {
   try {
@@ -25,7 +22,7 @@ export const processChat = async (req, res) => {
       {
         headers: {
           'Authorization': `Token ${process.env.DEEPGRAM_API_KEY}`,
-          'Content-Type': req.file.mimetype, // Typically 'audio/webm' from React
+          'Content-Type': req.file.mimetype, 
         },
       }
     );
@@ -37,7 +34,7 @@ export const processChat = async (req, res) => {
       return res.json({
         userText: "[Silence]",
         aiText: "I didn't quite catch that. Could you please repeat what you just said?",
-        aiAudioBase64: null, // We won't waste API calls generating TTS for this
+        aiAudioBase64: null,
         isSilence: true 
       });
     }
@@ -52,7 +49,8 @@ export const processChat = async (req, res) => {
     const messages = [
       { 
         role: "system", 
-        content: "You are a warm, professional Cuemath recruiter conducting a short voice interview. Keep your response to a maximum of two short, conversational sentences." 
+        content: `You are a warm, professional Cuemath recruiter conducting a short voice interview. Keep your response to a maximum of two short, conversational sentences.
+                  What reveals tutoring ability? You must question the candidate inorder to inorder to judge them properly. You may also give them some real world scenario and see how they would approach that.` 
       },
       ...chatHistory.map(msg => ({
         role: msg.speaker === 'AI' ? 'assistant' : 'user',
@@ -64,7 +62,7 @@ export const processChat = async (req, res) => {
     const llmResponse = await axios.post(
       'https://api.groq.com/openai/v1/chat/completions',
       {
-        model: "llama-3.1-8b-instant", // The fastest model available
+        model: "llama-3.1-8b-instant", 
         messages: messages,
         temperature: 0.7,
         max_tokens: 150
@@ -92,7 +90,6 @@ export const processChat = async (req, res) => {
           'Authorization': `Token ${process.env.DEEPGRAM_API_KEY}`,
           'Content-Type': 'application/json',
         },
-        // CRITICAL: Tells Axios to not mess with the binary audio data
         responseType: 'arraybuffer', 
       }
     );
@@ -124,38 +121,8 @@ export const processChat = async (req, res) => {
 
 
 
-// --- THE FIX: Exponential Backoff Helper ---
-const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
-async function generateWithRetry(prompt, isJson = false, maxRetries = 4) {
-  let attempt = 0;
-  
-  while (attempt < maxRetries) {
-    try {
-      const config = isJson ? { responseMimeType: "application/json" } : {};
-      const response = await ai.models.generateContent({
-        model: "gemini-3-flash-preview",
-        contents: prompt,
-        config: config
-      });
-      return response;
-    } catch (error) {
-      attempt++;
-      // Check if it's a 503 (Unavailable) or 429 (Rate Limit)
-      if (error.status === 503 || error.status === 429) {
-        if (attempt >= maxRetries) throw error; // Give up if we hit the limit
-        
-        const waitTime = Math.pow(2, attempt) * 1000; // 2s, 4s, 8s
-        console.log(`⚠️ Gemini busy (503). Retrying in ${waitTime/1000}s... (Attempt ${attempt}/${maxRetries})`);
-        await delay(waitTime);
-      } else {
-        throw error; // If it's a different error (like a bad API key), crash immediately
-      }
-    }
-  }
-}
 
-// ... [Keep your existing processChat function here, but you can swap its Gemini call to use generateWithRetry(prompt, false) if you want!] ...
 
 export const evaluateInterview = async (req, res) => {
   try {
@@ -167,10 +134,11 @@ export const evaluateInterview = async (req, res) => {
     const formattedTranscript = history.map(msg => `${msg.speaker}: ${msg.text}`).join('\n');
 
     const prompt = `
-      You are an expert recruiter for Cuemath. Analyze this transcript:
+      You are an expert recruiter for Cuemath. You must judge critically. Analyze this transcript:
       ${formattedTranscript}
 
       Evaluate Clarity, Warmth, Simplicity, Patience, and Fluency out of 5.
+      Do not evaluate recuiter/ai. only evaluate the user.
       You MUST output ONLY a valid JSON object using this exact schema:
       {
         "scores": {

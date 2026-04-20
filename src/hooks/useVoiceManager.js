@@ -133,7 +133,7 @@ export default function useVoiceManager(candidateName) {
     formData.append('history', JSON.stringify(transcriptHistory));
 
     try {
-      const response = await fetch('http://localhost:5000/api/chat', { method: 'POST', body: formData });
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL}/api/chat`, { method: 'POST', body: formData });
       if (!response.ok) throw new Error("Backend failed");
 
       const data = await response.json();
