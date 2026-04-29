@@ -35,7 +35,6 @@ export default function useVoiceManager(candidateName) {
         introAudio.currentTime = 0;
       }
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // 2. Start Recording & VAD
